@@ -10,7 +10,7 @@ public class CarController : MonoBehaviour
     public float maxSpeed;
     public float turnSpeed;
     public int place;
-    public GameObject lastPassedCheckpoint;
+    public GameObject lastPassedCheckpoint = null;
 
     SpriteRenderer renderer;
     Rigidbody2D body;

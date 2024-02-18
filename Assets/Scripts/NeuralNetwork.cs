@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using System;
 
 public class NeuralNetwork : MonoBehaviour
 {
@@ -15,11 +16,22 @@ public class NeuralNetwork : MonoBehaviour
         public Node(int numConnections, bool isInput)
         {
             this.value = 0f;
-            this.bias = (isInput ? 0f : Random.Range(-5f, 5f)); // Random bias between 0 and 10 (if the layer isn't the input layer)
+            this.bias = (isInput ? 0f : UnityEngine.Random.Range(-5f, 5f)); // Random bias between 0 and 10 (if the layer isn't the input layer)
             this.weights = new float[numConnections];
             for(int i = 0; i < this.weights.Length; i++)
             {
-                this.weights[i] = Random.Range(-5f, 5f);
+                this.weights[i] = UnityEngine.Random.Range(-5f, 5f);
+            }
+        }
+
+        public Node(Node toCopy)
+        {
+            this.value = toCopy.value;
+            this.bias = toCopy.bias;
+            this.weights = new float[toCopy.weights.Length];
+            for(int i = 0; i < toCopy.weights.Length; i++)
+            {
+                this.weights[i] = toCopy.weights[i];
             }
         }
 
@@ -78,6 +90,22 @@ public class NeuralNetwork : MonoBehaviour
             this.OUTPUT_LAYER = this.network.Length - 1;
         }
 
+        // Copy constructor
+        public Network(Network toCopy)
+        {
+            this.network = new Node[toCopy.network.Length][];
+            for(int i = 0; i < toCopy.network.Length; i++)
+            {
+                this.network[i] = new Node[toCopy.network[i].Length];
+                for(int j = 0; j < toCopy.network[i].Length; j++)
+                {
+                    this.network[i][j] = new Node(toCopy.network[i][j]);
+                }
+            }
+            this.INPUT_LAYER = toCopy.INPUT_LAYER;
+            this.OUTPUT_LAYER = toCopy.OUTPUT_LAYER;
+        }
+
         // Updates the state of all neurons
         public void Run()
         {
@@ -105,6 +133,22 @@ public class NeuralNetwork : MonoBehaviour
             }
         }
 
+        // Perform random mutations on the network
+        public void Mutate(float range)
+        {
+            for (int i = 0; i < (this.network.Length - 1); i++)
+            {
+                for (int j = 0; j < this.network[i].Length; j++)
+                {
+                    this.network[i][j].bias += UnityEngine.Random.Range(-range, range);
+                    for (int k = 0; k < this.network[i][j].weights.Length; k++)
+                    {
+                        this.network[i][j].weights[k] += UnityEngine.Random.Range(-range, range);
+                    }
+                }
+            }
+        }
+
         public void Print()
         {
             for(int i = 0; i < this.network.Length; i++)
@@ -125,7 +169,7 @@ public class NeuralNetwork : MonoBehaviour
     DepthSensor sensor;
     Rigidbody2D body;
 
-    Network network = null; // Neural Network
+    public Network network = null; // Neural Network
 
     const int ACCELERATE = 0;
     const int DECELERATE = 1;
@@ -197,11 +241,18 @@ public class NeuralNetwork : MonoBehaviour
     }
 
     // Returns a number representing how successful this car is (larger value = more successful)
-    float CalculateSuccess()
+    public float CalculateSuccess()
     {
-        return controller.place * 100f - Vector2.Distance(
-            controller.lastPassedCheckpoint.transform.position,
-            controller.lastPassedCheckpoint.GetComponent<Checkpoint>().next.transform.position);
+        try
+        {
+            return controller.place * 100f - Vector2.Distance(
+                controller.lastPassedCheckpoint.transform.position,
+                controller.lastPassedCheckpoint.GetComponent<Checkpoint>().next.transform.position);
+        }
+        catch (Exception e)
+        {
+            return 0f;
+        }
     }
 
     float Sigmoid(float x)
