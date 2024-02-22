@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class Trainer : MonoBehaviour
 {
+    public float timeLimit;
     public GameObject childContainer; // GameObject under which to instantiate cars
     public GameObject childPrefab;
     public int childrenPerGeneration;
     public float mutationRange;
+    float timePassed = 0f;
 
     GameObject bestInCurrentGen;
 
@@ -60,11 +62,14 @@ public class Trainer : MonoBehaviour
             }
         }
 
+        timePassed = 0f;
         generation++;
     }
 
     void Update()
     {
+        timePassed += Time.deltaTime;
+
         allChildrenDead = true;
         for (int i = 0; i < childContainer.transform.childCount; i++)
         {
@@ -75,7 +80,7 @@ public class Trainer : MonoBehaviour
             }
         }
         // Spawn the next generation if all cars are dead or the user presses the 'R' key
-        if (allChildrenDead || Input.GetKeyDown(KeyCode.R))
+        if (allChildrenDead || Input.GetKeyDown(KeyCode.R) || timePassed >= timeLimit)
         {
             NewGeneration();
         }

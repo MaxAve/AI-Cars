@@ -1227,6 +1227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1190394de14b0613b8ddefb71eb545d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  timeLimit: 15
   childContainer: {fileID: 1310030588}
   childPrefab: {fileID: 7647177797207486895, guid: 132bb62e934a102889f609436d3790f9, type: 3}
   childrenPerGeneration: 50
